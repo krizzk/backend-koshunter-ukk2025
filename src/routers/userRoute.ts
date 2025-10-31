@@ -1,47 +1,50 @@
 import express from "express"
-import {
-  getAllUsers,
-  createUser,
-  updateUser,
-  deleteUser,
-  changePicture,
-  authentication,
-  getUserById,
-  getDashboard,
-  getPopularKos,
-  testToken,
-} from "../controllers/userController"
+import { registerUser, loginUser, updateUserProfile, getUserProfile, registerOwner } from "../controllers/userController"
+import { verifyToken } from "../middleware/authorization"
 import { verifyAddUser, verifyEditUser, verifyAuthentication } from "../middleware/userValidation"
-import uploadFile from "../middleware/profileUpload"
-import { verifyToken, verifyRole } from "../middleware/authorization"
+import uploadFile from "../middleware/userUpload"
 
 const app = express()
 app.use(express.json())
 
-// User management routes
-app.get(`/`, [verifyToken, verifyRole(["OWNER"])], getAllUsers)
-app.get(`/profile`, [verifyToken, verifyRole(["SOCIETY", "OWNER"])], getUserById)
-app.post(`/create`, [uploadFile.single("profile_picture"), verifyAddUser], createUser)
-app.put(
-  `/:id`,
-  [verifyToken, verifyRole(["SOCIETY", "OWNER"]), uploadFile.single("profile_picture"), verifyEditUser],
-  updateUser,
-)
-app.put(
-  `/profile/:id`,
-  [verifyToken, verifyRole(["SOCIETY", "OWNER"]), uploadFile.single("profile_picture")],
-  changePicture,
-)
+/**
+ * @swagger
+ * /users/register:
+ *   post:
+ *     summary: Register new user
+ */
+app.post("/register", [verifyAddUser, uploadFile.single("profile_picture")], registerUser)
 
-app.delete(`/:id`, [verifyToken, verifyRole(["OWNER"])], deleteUser)
+/**
+ * @swagger
+ * /users/registerOwner:
+ *   post:
+ *     summary: Register new owner
+ */
+app.post("/registerOwner", [verifyAddUser, uploadFile.single("profile_picture")], registerOwner)
 
-app.post(`/login`, [verifyAuthentication], authentication)
+/**
+ * @swagger
+ * /users/login:
+ *   post:
+ *     summary: Login user
+ */
+app.post("/login", [verifyAuthentication], loginUser)
 
-// Test endpoint untuk debug token - TANPA middleware role
-app.get(`/test-token`, [verifyToken], testToken)
+/**
+ * @swagger
+ * /users/profile:
+ *   get:
+ *     summary: Get user profile
+ */
+app.get("/profile", [verifyToken], getUserProfile)
 
-// Dashboard routes
-app.get(`/dashboard`, [verifyToken, verifyRole(["SOCIETY", "OWNER"])], getDashboard)
-app.get(`/popular-kos`, [verifyToken, verifyRole(["SOCIETY", "OWNER"])], getPopularKos)
+/**
+ * @swagger
+ * /users/profile/{id}:
+ *   put:
+ *     summary: Update user profile (owner only)
+ */
+app.put("/profile/:id", [verifyToken, verifyEditUser, uploadFile.single("profile_picture")], updateUserProfile)
 
 export default app

@@ -2,87 +2,61 @@ declare global {
   namespace Express {
     interface Request {
       user?: {
-        id: string
+        id: number
         name: string
         email: string
-        role: "OWNER" | "SOCIETY"
-        phone_number: string
-        profile_picture: string
+        role: "OWNER" | "SOCIETY" | "ADMIN"
+        phone: string
+        profile_picture?: string | null
       }
     }
   }
 }
 
-export interface KosData {
-  id: number
-  uuid: string
-  name: string
-  alamat: string
-  kos_picture: string
-  description: string
-  peraturan_kos: string
-  fasilitas_umum: string
-  gender_type: "PUTRA" | "PUTRI" | "CAMPUR"
-  available_rooms: number // Otomatis dari room dengan status AVAILABLE
-  total_rooms: number // Otomatis dari jumlah room yang dibuat
-  ownerId: number
-}
-
-export interface RoomData {
-  id: number
-  uuid: string
-  room_number: string
-  tipe: string
-  room_picture: string
-  fasilitas_kamar: string
-  harga: number
-  status: "AVAILABLE" | "OCCUPIED" | "MAINTENANCE"
-  kosId: number
-}
-
-export interface BookingData {
-  id: number
-  uuid: string
-  start_date: Date
-  end_date: Date
-  total_price: number
-  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED"
-  notes: string
-  invoice_number: string
-  invoice_pdf: string
-  userId: number
-  roomId: number
-}
-
 export interface UserData {
   id: number
-  uuid: string
   name: string
   email: string
-  profile_picture: string
-  role: "OWNER" | "SOCIETY"
-  phone_number: string
+  phone: string
+  role: "OWNER" | "SOCIETY" | "ADMIN"
+  profile_picture?: string | null
+}
+
+export interface KosData {
+  id: number
+  user_id: number
+  name: string
+  address: string
+  price_per_month: number
+  gender: "MALE" | "FEMALE" | "ALL"
+}
+
+export interface KosImageData {
+  id: number
+  kos_id: number
+  file: string
+}
+
+export interface KosFacilityData {
+  id: number
+  kos_id: number
+  facility: string
 }
 
 export interface ReviewData {
   id: number
-  uuid: string
-  content: string
-  rating: number
-  reply_content?: string
-  reply_at?: Date
-  userId: number
-  kosId: number
-  ownerId?: number
+  kos_id: number
+  user_id: number
+  comment: string
+  reply?: string
 }
 
-export interface FacilityData {
+export interface BookData {
   id: number
-  uuid: string
-  name: string
-  description: string
-  icon: string
-  facility_type: "KOS_FACILITY" | "ROOM_FACILITY"
-  kosId?: number
-  roomId?: number
+  kos_id: number
+  user_id: number
+  start_date: Date
+  end_date: Date
+  status: "PENDING" | "ACCEPT" | "REJECT"
 }
+

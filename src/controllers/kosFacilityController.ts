@@ -3,28 +3,19 @@ import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient({ errorFormat: "pretty" })
 
-// Get reviews for a kos
-export const getKosReviews = async (request: Request, response: Response) => {
+// Get facilities for a kos
+export const getKosFacilities = async (request: Request, response: Response) => {
   try {
     const { kos_id } = request.params
 
-    const reviews = await prisma.review.findMany({
+    const facilities = await prisma.kosFacility.findMany({
       where: { kos_id: Number(kos_id) },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
     })
 
     return response.status(200).json({
       status: true,
-      data: reviews,
-      message: "Reviews retrieved successfully",
+      data: facilities,
+      message: "Facilities retrieved successfully",
     })
   } catch (error) {
     return response.status(400).json({
@@ -34,41 +25,43 @@ export const getKosReviews = async (request: Request, response: Response) => {
   }
 }
 
-// Add review (society only)
-export const addReview = async (request: Request, response: Response) => {
+// Add facility to kos
+export const addKosFacility = async (request: Request, response: Response) => {
   try {
     const kos_id = Number(request.params.kos_id)
-    const { comment } = request.body
+    const { facility } = request.body
     const user_id = request.user?.id
 
-    if (!user_id) {
-      return response.status(401).json({
+    // Check if kos exists and belongs to user
+    const kos = await prisma.kos.findUnique({
+      where: { id: Number(kos_id) },
+    })
+
+    if (!kos) {
+      return response.status(404).json({
         status: false,
-        message: "Unauthorized",
+        message: "Kos not found",
       })
     }
 
-    const review = await prisma.review.create({
+    if (kos.user_id !== Number(user_id)) {
+      return response.status(403).json({
+        status: false,
+        message: "Forbidden",
+      })
+    }
+
+    const newFacility = await prisma.kosFacility.create({
       data: {
         kos_id: Number(kos_id),
-        user_id: Number(user_id),
-        comment,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
+        facility,
       },
     })
 
     return response.status(201).json({
       status: true,
-      data: review,
-      message: "Review added successfully",
+      data: newFacility,
+      message: "Facility added successfully",
     })
   } catch (error) {
     return response.status(400).json({
@@ -78,50 +71,41 @@ export const addReview = async (request: Request, response: Response) => {
   }
 }
 
-// Reply to review (owner only)
-export const replyReview = async (request: Request, response: Response) => {
+// Update facility
+export const updateKosFacility = async (request: Request, response: Response) => {
   try {
     const { id } = request.params
-    const { reply } = request.body
+    const { facility } = request.body
     const user_id = request.user?.id
 
-    const review = await prisma.review.findUnique({
+    const facilityData = await prisma.kosFacility.findUnique({
       where: { id: Number(id) },
       include: { kos: true },
     })
 
-    if (!review) {
+    if (!facilityData) {
       return response.status(404).json({
         status: false,
-        message: "Review not found",
+        message: "Facility not found",
       })
     }
 
-    if (review.kos.user_id !== Number(user_id)) {
+    if (facilityData.kos.user_id !== Number(user_id)) {
       return response.status(403).json({
         status: false,
         message: "Forbidden",
       })
     }
 
-    const updatedReview = await prisma.review.update({
+    const updatedFacility = await prisma.kosFacility.update({
       where: { id: Number(id) },
-      data: { reply },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
+      data: { facility },
     })
 
     return response.status(200).json({
       status: true,
-      data: updatedReview,
-      message: "Reply added successfully",
+      data: updatedFacility,
+      message: "Facility updated successfully",
     })
   } catch (error) {
     return response.status(400).json({
@@ -131,37 +115,38 @@ export const replyReview = async (request: Request, response: Response) => {
   }
 }
 
-// Delete review
-export const deleteReview = async (request: Request, response: Response) => {
+// Delete facility
+export const deleteKosFacility = async (request: Request, response: Response) => {
   try {
     const { id } = request.params
     const user_id = request.user?.id
 
-    const review = await prisma.review.findUnique({
+    const facilityData = await prisma.kosFacility.findUnique({
       where: { id: Number(id) },
+      include: { kos: true },
     })
 
-    if (!review) {
+    if (!facilityData) {
       return response.status(404).json({
         status: false,
-        message: "Review not found",
+        message: "Facility not found",
       })
     }
 
-    if (review.user_id !== Number(user_id)) {
+    if (facilityData.kos.user_id !== Number(user_id)) {
       return response.status(403).json({
         status: false,
         message: "Forbidden",
       })
     }
 
-    await prisma.review.delete({
+    await prisma.kosFacility.delete({
       where: { id: Number(id) },
     })
 
     return response.status(200).json({
       status: true,
-      message: "Review deleted successfully",
+      message: "Facility deleted successfully",
     })
   } catch (error) {
     return response.status(400).json({

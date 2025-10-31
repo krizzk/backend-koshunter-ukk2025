@@ -5,11 +5,11 @@ import swaggerUi from "swagger-ui-express"
 import path from "path"
 
 import KosRoute from "./routers/kosRoute"
-import RoomRoute from "./routers/roomRoute"
 import UserRoute from "./routers/userRoute"
-import BookingRoute from "./routers/bookingRoute"
+import BookingRoute from "./routers/bookRoute"
 import ReviewRoute from "./routers/reviewRoute"
-import FacilityRoute from "./routers/facilityRoute"
+import FacilityRoute from "./routers/kosFacilityRoute"
+import AdminRoute from "./routers/adminRoute"
 
 import { PORT } from "./global"
 
@@ -49,12 +49,12 @@ const swaggerDocs = swaggerJsDoc(swaggerOptions)
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 
 // API Routes
-app.use(`/kos`, KosRoute)
-app.use(`/rooms`, RoomRoute)
 app.use(`/users`, UserRoute) //include dahsboard
+app.use(`/kos`, KosRoute)
 app.use(`/bookings`, BookingRoute) // includdes Invoice dan history 
 app.use(`/reviews`, ReviewRoute)
 app.use(`/facilities`, FacilityRoute)
+app.use(`/admin`, AdminRoute)
 
 app.use("/uploads", express.static(path.join(__dirname, "..", "public")))
 

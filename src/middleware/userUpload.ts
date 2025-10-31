@@ -3,15 +3,17 @@ import multer from "multer"
 import { BASE_URL } from "../global"
 import type { Express } from "express"
 
-/** define storage configuration for facility icons */
+/** define storage configuration of profile image  */
 const storage = multer.diskStorage({
   destination: (
     request: Request,
     file: Express.Multer.File,
     cb: (error: Error | null, destination: string) => void,
   ) => {
-    /** define location of uploaded icons */
-    cb(null, `${BASE_URL}/public/facility_icons/`)
+    /** define location of uploaded image, make sure that you have create a "public" folder in root folder.
+     * then create folder "profile_picture" inside of "public folder"
+     */
+    cb(null, `${BASE_URL}/public/profile_picture/`)
   },
   filename: (request: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
     /** define file name of uploaded file */
@@ -21,7 +23,9 @@ const storage = multer.diskStorage({
 
 const uploadFile = multer({
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 } /** max size 2 MB */,
+  limits: { fileSize: 2 * 1024 * 1024 } /** define max size of uploaded file, in this case max size is 2 MB */,
 })
+
+export const userUpload = uploadFile
 
 export default uploadFile

@@ -3,14 +3,14 @@ import multer from "multer"
 import { BASE_URL } from "../global"
 import type { Express } from "express"
 
-/** define storage configuration of kos picture  */
+/** define storage configuration for kos images */
 const storage = multer.diskStorage({
   destination: (
     request: Request,
     file: Express.Multer.File,
     cb: (error: Error | null, destination: string) => void,
   ) => {
-   
+    /** define location of uploaded kos images */
     cb(null, `${BASE_URL}/public/kos_picture/`)
   },
   filename: (request: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
@@ -19,9 +19,9 @@ const storage = multer.diskStorage({
   },
 })
 
-const uploadFile = multer({
+const uploadKosFile = multer({
   storage,
-  limits: { fileSize: 16 * 1024 * 1024 } /** define max size of uploaded file, in this case max size is 16 MB */,
+  limits: { fileSize: 5 * 1024 * 1024 } /** max size is 5 MB */,
 })
 
-export default uploadFile
+export default uploadKosFile

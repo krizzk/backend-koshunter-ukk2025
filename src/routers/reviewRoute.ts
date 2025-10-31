@@ -1,21 +1,40 @@
 import express from "express"
-import { getAllReviewsByKosId, createReview, replyToReview, deleteReview } from "../controllers/reviewController"
-import { verifyAddReview, verifyReplyReview } from "../middleware/reviewValidation"
-import { verifyRole, verifyToken } from "../middleware/authorization"
+import { getKosReviews, addReview, replyReview, deleteReview } from "../controllers/reviewController"
+import { verifyToken, verifyRole } from "../middleware/authorization"
 
 const app = express()
 app.use(express.json())
 
-// Society dapat melihat komentar tanpa login, tapi untuk menambah perlu login
-app.get(`/kos/:kosId`, getAllReviewsByKosId)
+/**
+ * @swagger
+ * /reviews/{kos_id}:
+ *   get:
+ *     summary: Get reviews for a kos
+ */
+app.get("/:kos_id", getKosReviews)
 
-// Society dapat menambahkan komentar
-app.post(`/`, [verifyToken, verifyRole(["SOCIETY"]), verifyAddReview], createReview)
+/**
+ * @swagger
+ * /reviews:
+ *   post:
+ *     summary: Add review (society only)
+ */
+app.post("/:kos_id", [verifyToken, verifyRole(["SOCIETY"])], addReview)
 
-// Owner dapat membalas reviews dari society
-app.put(`/:id/reply`, [verifyToken, verifyRole(["OWNER"]), verifyReplyReview], replyToReview)
+/**
+ * @swagger
+ * /reviews/{id}/reply:
+ *   put:
+ *     summary: Reply to review (owner only)
+ */
+app.put("/:id/reply", [verifyToken, verifyRole(["OWNER"])], replyReview)
 
-// Society dan Owner dapat menghapus review (society untuk review sendiri, owner untuk review di kos mereka)
-app.delete(`/:id`, [verifyToken], deleteReview)
+/**
+ * @swagger
+ * /reviews/{id}:
+ *   delete:
+ *     summary: Delete review
+ */
+app.delete("/:id", [verifyToken], deleteReview)
 
 export default app
