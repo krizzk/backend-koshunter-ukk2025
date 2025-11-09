@@ -59,31 +59,31 @@ export const addKosImage = async (request: Request, response: Response) => {
 export const deleteKosImage = async (request: Request, response: Response) => {
   try {
     const { id } = request.params
-    const user_id = request.body.user?.id
+    const user_id = request.user?.id
 
-    const image = await prisma.kosImage.findUnique({
+    const file = await prisma.kosImage.findUnique({
       where: { id: Number(id) },
       include: { kos: true },
     })
 
-    if (!image) {
+    if (!file) {
       return response.status(404).json({
         status: false,
         message: "Image not found",
       })
     }
 
-    if (image.kos.user_id !== user_id) {
+    if (file.kos.user_id !== user_id) {
       return response.status(403).json({
         status: false,
         message: "Forbidden",
       })
     }
 
-    const filename = image.file.split("/").pop()
-    const path = `${BASE_URL}/public/kos_picture/${filename}`
-    const exists = fs.existsSync(path)
-    if (exists && filename !== "") fs.unlinkSync(path)
+    const filename = file.file.split("/").pop() || ""
+    const filePath = `${process.cwd()}/public/uploads/kos_picture/${filename}`
+    const exists = fs.existsSync(filePath)
+    if (exists && filename !== "") fs.unlinkSync(filePath)
 
     await prisma.kosImage.delete({
       where: { id: Number(id) },

@@ -38,7 +38,7 @@ export const getKosReviews = async (request: Request, response: Response) => {
 export const addReview = async (request: Request, response: Response) => {
   try {
     const kos_id = Number(request.params.kos_id)
-    const { comment } = request.body
+    const { comment, bintang } = request.body
     const user_id = request.user?.id
 
     if (!user_id) {
@@ -52,6 +52,7 @@ export const addReview = async (request: Request, response: Response) => {
       data: {
         kos_id: Number(kos_id),
         user_id: Number(user_id),
+        bintang: Number(bintang),
         comment,
       },
       include: {

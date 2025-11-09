@@ -68,19 +68,23 @@ export const createBooking = async (request: Request, response: Response) => {
 // Get user bookings
 export const getUserBookings = async (request: Request, response: Response) => {
   try {
-    const user_id = request.user?.id
+    const { user_id } = request.params
 
     if (!user_id) {
-      return response.status(401).json({
+      return response.status(400).json({
         status: false,
-        message: "Unauthorized",
+        message: "User id is required",
       })
     }
 
     const bookings = await prisma.book.findMany({
       where: { user_id: Number(user_id) },
       include: {
-        kos: true,
+        kos: {
+          include: {
+            images: true, // sesuaikan nama relasi jika berbeda (mis. images)
+          },
+        },
         user: true,
       },
     })
@@ -117,7 +121,11 @@ export const getOwnerBookings = async (request: Request, response: Response) => 
         },
       },
       include: {
-        kos: true,
+        kos: {
+          include: {
+            images: true, // sesuaikan nama relasi jika berbeda (mis. images)
+          },
+        },
         user: true,
       },
     })

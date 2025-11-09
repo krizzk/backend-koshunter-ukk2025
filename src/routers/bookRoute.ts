@@ -27,7 +27,7 @@ app.post("/", [verifyToken, verifyRole(["SOCIETY"]), verifyCreateBook], createBo
  *   get:
  *     summary: Get user bookings
  */
-app.get("/user", [verifyToken], getUserBookings)
+app.get("/user/:user_id", [verifyToken], getUserBookings)
 
 /**
  * @swagger

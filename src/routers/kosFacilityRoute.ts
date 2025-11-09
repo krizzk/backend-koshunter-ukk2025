@@ -41,6 +41,6 @@ app.put("/:id", [verifyToken, verifyRole(["OWNER"]), verifyUpdateFacility], upda
  *   delete:
  *     summary: Delete facility (owner only)
  */
-app.delete("/:id", [verifyToken, verifyRole(["OWNER"])], deleteKosFacility)
+app.delete("/delete/:id", [verifyToken, verifyRole(["OWNER"])], deleteKosFacility)
 
 export default app

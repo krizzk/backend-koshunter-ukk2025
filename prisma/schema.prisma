@@ -99,6 +99,7 @@ model Review {
   kos_id    Int
   user_id   Int
   comment   String    @db.Text
+  bintang   Int   
   reply     String?   @db.Text
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

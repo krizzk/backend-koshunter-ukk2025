@@ -208,8 +208,38 @@ export const updateUserProfile = async (request: Request, response: Response) =>
 // Get user profile
 export const getUserProfile = async (request: Request, response: Response) => {
   try {
-    const user_id = request.body.user?.id
+    // Get token from Authorization header: "Bearer <token>"
+    const authHeader = request.headers.authorization || request.headers.Authorization
+    if (!authHeader || typeof authHeader !== "string") {
+      return response.status(401).json({
+        status: false,
+        message: "Unauthorized",
+      })
+    }
 
+    const parts = authHeader.split(" ")
+    if (parts.length !== 2 || parts[0].toLowerCase() !== "bearer") {
+      return response.status(401).json({
+        status: false,
+        message: "Unauthorized",
+      })
+    }
+
+    const token = parts[1]
+
+    // Dynamically import verify to avoid changing top-level imports
+    const { verify } = await import("jsonwebtoken")
+    let decoded: any
+    try {
+      decoded = verify(token, SECRET || "joss")
+    } catch (err) {
+      return response.status(401).json({
+        status: false,
+        message: "Invalid or expired token",
+      })
+    }
+
+    const user_id = decoded?.id
     if (!user_id) {
       return response.status(401).json({
         status: false,
@@ -218,7 +248,7 @@ export const getUserProfile = async (request: Request, response: Response) => {
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: user_id },
+      where: { id: Number(user_id) },
       select: {
         id: true,
         name: true,
@@ -226,6 +256,7 @@ export const getUserProfile = async (request: Request, response: Response) => {
         phone: true,
         role: true,
         profile_picture: true,
+        createdAt: true,
       },
     })
 

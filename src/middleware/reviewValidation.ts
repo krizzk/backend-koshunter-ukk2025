@@ -3,9 +3,9 @@ import Joi from "joi"
 
 /** create schema for adding a review */
 const addReviewSchema = Joi.object({
-  kosId: Joi.number().required(),
-  content: Joi.string().required(),
-  rating: Joi.number().min(1).max(5).required(),
+  // kosId: Joi.number().required(),
+  comment: Joi.string().required(),
+  bintang: Joi.number().min(1).max(5).required(),
   user: Joi.optional(),
 })
 

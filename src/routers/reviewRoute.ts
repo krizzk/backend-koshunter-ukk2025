@@ -1,6 +1,7 @@
 import express from "express"
 import { getKosReviews, addReview, replyReview, deleteReview } from "../controllers/reviewController"
 import { verifyToken, verifyRole } from "../middleware/authorization"
+import { verifyAddReview, verifyReplyReview } from "../middleware/reviewValidation"
 
 const app = express()
 app.use(express.json())
@@ -19,7 +20,7 @@ app.get("/:kos_id", getKosReviews)
  *   post:
  *     summary: Add review (society only)
  */
-app.post("/:kos_id", [verifyToken, verifyRole(["SOCIETY"])], addReview)
+app.post("/:kos_id", [verifyToken, verifyRole(["SOCIETY"]),verifyAddReview], addReview)
 
 /**
  * @swagger
@@ -27,7 +28,7 @@ app.post("/:kos_id", [verifyToken, verifyRole(["SOCIETY"])], addReview)
  *   put:
  *     summary: Reply to review (owner only)
  */
-app.put("/:id/reply", [verifyToken, verifyRole(["OWNER"])], replyReview)
+app.put("/:id/reply", [verifyToken, verifyRole(["OWNER"]),verifyReplyReview], replyReview)
 
 /**
  * @swagger
